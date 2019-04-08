@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using LambdaContactListWebAPI.Models;
 using LambdaContactListWebAPI.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LambdaContactListWebAPI.Controllers
@@ -20,23 +16,6 @@ namespace LambdaContactListWebAPI.Controllers
             _contactListService = contactListService;
         }
 
-        [Route("GetList")]
-        [HttpGet]
-        public IActionResult GetContactList()
-        {
-            return Ok(_contactListService.GetItemsFromContactList());
-        }
-
-        [Route("GetList/{id}")]
-        [HttpGet]
-        public IActionResult GetContactList(int? id)
-        {
-            if (id.HasValue)
-                return Ok(_contactListService.GetItemFromContactListWithId(id == null ? 0 : id.Value));
-            else
-                return NotFound();
-        }
-
         [Route("Add")]
         [HttpPost]
         public IActionResult AddItemToContactList([FromBody] ContactModel contact)
@@ -47,8 +26,53 @@ namespace LambdaContactListWebAPI.Controllers
             else
                 return Ok(rm.Message);
         }
-        
-        [Route("Delete/{id}")]
+
+        [Route("GetItem/{id}")]
+        [HttpGet]
+        public IActionResult GetContactList(int? id)
+        {
+            if (id.HasValue)
+                return Ok(_contactListService.GetItemFromContactListWithId(id == null ? 0 : id.Value));
+            else
+                return NotFound();
+        }
+
+        [Route("GetList")]
+        [HttpGet]
+        public IActionResult GetContactList()
+        {
+            return Ok(_contactListService.GetItemsFromContactList());
+        }
+
+        [Route("GetList/State/{name}")]
+        [HttpGet]
+        public IActionResult GetContactListFromState(string name)
+        {
+            return Ok(_contactListService.GetItemFromState(name));
+        }
+
+        [Route("GetList/City/{name}")]
+        [HttpGet]
+        public IActionResult GetContactListFromCity(string name)
+        {
+            return Ok(_contactListService.GetItemFromCity(name));
+        }
+
+        [Route("GetItem/Email/{email}")]
+        [HttpGet]
+        public IActionResult GetContactFromEmail(string email)
+        {
+            return Ok(_contactListService.GetItemFromEmail(email));
+        }
+
+        [Route("GetItem/PhoneNumber/{phoneNumber}")]
+        [HttpGet]
+        public IActionResult GetContactFromPhoneNumber(string phoneNumber)
+        {
+            return Ok(_contactListService.GetItemFromPhoneNumber(phoneNumber));
+        }
+
+        [Route("Delete")]
         [HttpDelete]
         public IActionResult DeleteItemFromContactList([FromBody] int Id)
         {
@@ -59,11 +83,15 @@ namespace LambdaContactListWebAPI.Controllers
                 return Ok(value.Message);
         }
 
-        [Route("Update/{id}")]
+        [Route("Update")]
         [HttpPut]
-        public IActionResult UpdateItemFromContactList(int id, [FromBody] int asd)
+        public IActionResult UpdateItemFromContactList([FromBody] UpdateContactModel o)
         {
-            return Ok();
+            ReturnMessage rm = _contactListService.UpdateItemFromContactList(o);
+            if (rm.Error)
+                return NotFound(rm.Message);
+            else
+                return Ok(rm.Message);
         }
     }
 }   

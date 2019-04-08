@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace LambdaContactListWebAPI.Models
 {
@@ -12,11 +9,21 @@ namespace LambdaContactListWebAPI.Models
         public string CompanyName { get; set; }
         public string Base64ProfileImage { get; set; }
         public string Email { get; set; }
-        //public BirthDay BirthDay { get; set; }
+        public DateTime BirthDay { get; set; }
         public PhoneNumbers PhoneNumber { get; set; }
         public Address Address { get; set; }
-
-        public ReturnMessage NewContact(string name, string companyName, string base64ProfileImage, string email, PhoneNumbers phoneNumber, Address address)
+        /// <summary>
+        /// Checks all data (validate) given
+        /// </summary>
+        /// <param name="name">Contact name</param>
+        /// <param name="companyName">Contact Company name</param>
+        /// <param name="base64ProfileImage">Contact profile Base64 image encoded</param>
+        /// <param name="email">Contact email</param>
+        /// <param name="date">Contact BirthDay</param>
+        /// <param name="phoneNumber">Contact Phone numbers (Work, Personal)</param>
+        /// <param name="address">Contact Address information</param>
+        /// <returns>Return message with/without error</returns>
+        public ReturnMessage NewContact(string name, string companyName, string base64ProfileImage, string email, string date, PhoneNumbers phoneNumber, Address address)
         {
             if (IsAlpha(name))
             {
@@ -26,21 +33,27 @@ namespace LambdaContactListWebAPI.Models
                     email = email.Replace(" ", string.Empty);
                     if (IsValidEmail(email))
                     {
-                        PhoneNumbers p = new PhoneNumbers();
-                        ReturnMessage m = p.CheckInputData(phoneNumber.Work.ToString(), phoneNumber.Personal.ToString());
-                        if (!m.Error)
+                        if (IsDateValid(date))
                         {
-                            Address a = new Address();
-                            ReturnMessage rm = a.CheckInputData(address.Street, address.StreetNumber.ToString(), address.City, address.State);
-                            if (!rm.Error)
+                            BirthDay = Convert.ToDateTime(date);
+                            PhoneNumbers p = new PhoneNumbers();
+                            ReturnMessage m = p.CheckInputData(phoneNumber.Work.ToString(), phoneNumber.Personal.ToString());
+                            if (!m.Error)
                             {
-                                return new ReturnMessage(false, "New Contact added");
+                                Address a = new Address();
+                                ReturnMessage rm = a.CheckInputData(address.Street, address.StreetNumber.ToString(), address.City, address.State);
+                                if (!rm.Error)
+                                {
+                                    return new ReturnMessage(false, "New Contact added");
+                                }
+                                else
+                                    return rm;
                             }
                             else
-                                return rm;
+                                return m;
                         }
                         else
-                            return m;
+                            return new ReturnMessage(true, "Incorrect birthday date format");
                     }
                     else
                         return new ReturnMessage(true, "Incorrect email format");
@@ -51,7 +64,6 @@ namespace LambdaContactListWebAPI.Models
             else
                 return new ReturnMessage(true, "Incorrect name format");
         }
-
         /// <summary>
         /// Validates if string given is composed from characters only
         /// </summary>
@@ -61,7 +73,6 @@ namespace LambdaContactListWebAPI.Models
         {
             return Regex.IsMatch(value, @"^[a-zA-Z]+$");
         }
-
         /// <summary>
         /// Validates base64 profile image format
         /// </summary>
@@ -82,7 +93,6 @@ namespace LambdaContactListWebAPI.Models
                 return false;
             }
         }
-
         /// <summary>
         /// Validates email address
         /// </summary>
@@ -96,6 +106,23 @@ namespace LambdaContactListWebAPI.Models
                 return addr.Address == email;
             }
             catch
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// Validates the date string inserted
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public bool IsDateValid(string date)
+        {
+            try
+            {
+                DateTime Date = Convert.ToDateTime(date);
+                return true;
+            }
+            catch (Exception)
             {
                 return false;
             }

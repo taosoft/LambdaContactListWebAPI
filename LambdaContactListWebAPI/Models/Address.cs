@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace LambdaContactListWebAPI.Models
 {
@@ -12,6 +9,16 @@ namespace LambdaContactListWebAPI.Models
         public int StreetNumber { get; set; }
         public string City { get; set; }
         public string State { get; set; }
+        /// <summary>
+        /// Checks all data (validates) given
+        /// Note: We could make a better system with an API that validates the street, street
+        /// number, city name, and state (maybe google maps). I just used a normal validation way.
+        /// </summary>
+        /// <param name="street">Street name</param>
+        /// <param name="streetNumber">Street number</param>
+        /// <param name="city">City name</param>
+        /// <param name="state">State name</param>
+        /// <returns></returns>
         public ReturnMessage CheckInputData(string street, string streetNumber, string city, string state)
         {
             if (IsValidStreet(street))

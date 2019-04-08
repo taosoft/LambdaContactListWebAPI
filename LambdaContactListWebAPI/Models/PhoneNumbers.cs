@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace LambdaContactListWebAPI.Models
 {
@@ -10,6 +7,14 @@ namespace LambdaContactListWebAPI.Models
     {
         public double Work { get; set; }
         public double Personal { get; set; }
+        /// <summary>
+        /// Checks all data (validates) given
+        /// Note: We could make a better system with an API that validates the phone number, i just
+        /// take care (here) length and integrer data input.
+        /// </summary>
+        /// <param name="work">Work phone number</param>
+        /// <param name="personal">Personal phone number</param>
+        /// <returns>Return message with/without error</returns>
         public ReturnMessage CheckInputData(string work, string personal)
         {
             work = work.Replace(" ", string.Empty);
@@ -38,7 +43,6 @@ namespace LambdaContactListWebAPI.Models
             else
                 return new ReturnMessage(true, "Invalid work number length given");
         }
-
         /// <summary>
         /// Validates if string given is composed from numbers only
         /// </summary>
